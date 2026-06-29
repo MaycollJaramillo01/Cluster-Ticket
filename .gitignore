@@ -7,3 +7,5 @@ public/uploads/*
 npm-debug.log*
 dev.log
 dev-error.log
+
+.vercel

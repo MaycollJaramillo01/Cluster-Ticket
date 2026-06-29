@@ -220,6 +220,7 @@ export default function SettingsPage() {
               <label htmlFor="role">Rol</label>
               <select id="role" name="role" className="input">
                 <option value="COLLABORATOR">Colaborador</option>
+                <option value="CLIENT">Cliente</option>
                 <option value="ADMIN">Administrador</option>
                 <option value="READ_ONLY">Solo lectura</option>
               </select>
