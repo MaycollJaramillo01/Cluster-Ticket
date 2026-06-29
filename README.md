@@ -17,11 +17,12 @@ Abre `http://localhost:3000` (Next.js elegirá otro puerto si está ocupado).
 
 Copia `.env.example` a `.env` y configura:
 
-- `DATABASE_URL`: SQLite local por defecto. El esquema Prisma está preparado para migrarse a PostgreSQL cambiando el provider y la URL.
+- `DATABASE_URL`: conexión agrupada de Neon PostgreSQL usada por la aplicación.
+- `DATABASE_URL_UNPOOLED`: conexión directa de Neon usada por Prisma para cambios de esquema.
 - `APP_URL`: URL pública usada en los enlaces directos de los correos.
-- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`: credenciales del servidor SMTP.
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`: credenciales SMTP de Brevo. Usa `smtp-relay.brevo.com`, puerto `587` y una clave SMTP (no una API key).
 
-Sin SMTP, los tickets se crean normalmente y el contenido del correo queda registrado en la consola del servidor para diagnóstico. El email principal se administra desde Configuración.
+Brevo ofrece un plan gratuito de 300 emails diarios. Debes crear la cuenta, verificar `maycolljaramillo01@gmail.com` como remitente y copiar el usuario y la clave de la sección SMTP. Sin esas credenciales, los tickets se crean normalmente y el contenido del correo queda registrado en la consola del servidor para diagnóstico.
 
 ## Recordatorios
 
@@ -44,4 +45,4 @@ npm run build
 npm audit --omit=dev
 ```
 
-La base local se inicializa con el administrador `maycolljaramillo01@gmail.com` y un usuario colaborador de ejemplo para poder asignar trabajo desde el primer arranque.
+La base de Neon se inicializa con `maycolljaramillo01@gmail.com`. Todas las tareas se asignan a este usuario desde el servidor y los correos se envían a esa dirección.

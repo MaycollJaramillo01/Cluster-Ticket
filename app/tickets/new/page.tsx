@@ -1,14 +1,286 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { AlertCircle, Bell, FileUp, Info, Paperclip, Send, X } from 'lucide-react'
-import type { User } from '@/types'
-import toast from 'react-hot-toast'
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import {
+  AlertCircle,
+  Bell,
+  FileUp,
+  Info,
+  Paperclip,
+  Send,
+  X,
+} from "lucide-react";
+import toast from "react-hot-toast";
 
-export default function NewTicketPage(){
- const router=useRouter();const [users,setUsers]=useState<User[]>([]);const [files,setFiles]=useState<File[]>([]);const [saving,setSaving]=useState(false);const [error,setError]=useState('')
- useEffect(()=>{fetch('/api/users').then(r=>r.json()).then(setUsers)},[])
- async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setSaving(true);setError('');const data=new FormData(e.currentTarget);const due=`${data.get('dueDate')}T${data.get('dueTime')||'17:00'}`;const ticket={title:data.get('title'),description:data.get('description'),category:data.get('category'),priority:data.get('priority'),status:'NEW',clientProject:data.get('clientProject')||null,assignedToId:data.get('assignedToId')?Number(data.get('assignedToId')):null,dueAt:new Date(due).toISOString(),tags:String(data.get('tags')||'').split(',').map(x=>x.trim()).filter(Boolean),internalNotes:data.get('internalNotes')||null,createdById:1};const form=new FormData();form.set('ticket',JSON.stringify(ticket));files.forEach(f=>form.append('files',f));const r=await fetch('/api/tickets',{method:'POST',body:form});const json=await r.json();setSaving(false);if(!r.ok){setError(json.error||'No se pudo crear el ticket.');return}toast.success(json.emailSent?'Ticket creado y email enviado.':'Ticket creado. Configura SMTP para enviar el email.');router.push(`/tickets/${json.ticket.id}`)}
- return <><div className="page-head"><div><h2>Crear nuevo ticket</h2><p>Registra el trabajo con toda la información necesaria para darle seguimiento.</p></div></div><div className="grid-2"><form className="panel form-panel" onSubmit={submit}><h3 className="section-title"><Info size={18}/>Información principal</h3>{error&&<div className="file-item" role="alert" style={{color:'#b91c1c',marginBottom:16}}><AlertCircle size={17}/>{error}</div>}<div className="form-grid"><div className="field field-full"><label htmlFor="title">Título del ticket <span className="required">*</span></label><input id="title" name="title" className="input" required minLength={3} maxLength={160} placeholder="Ej. Revisar conversiones de campaña"/></div><div className="field field-full"><label htmlFor="description">Descripción detallada <span className="required">*</span></label><textarea id="description" name="description" className="input" required minLength={5} placeholder="Describe el contexto, resultado esperado y cualquier detalle importante…"/></div><div className="field"><label htmlFor="category">Categoría <span className="required">*</span></label><select id="category" name="category" className="input" required defaultValue=""><option value="" disabled>Seleccionar</option><option value="SUPPORT">Soporte</option><option value="GOOGLE_ADS">Google Ads</option><option value="WEBSITE">Sitio web</option></select></div><div className="field"><label htmlFor="priority">Prioridad <span className="required">*</span></label><select id="priority" name="priority" className="input" required defaultValue="MEDIUM"><option value="LOW">Baja</option><option value="MEDIUM">Media</option><option value="HIGH">Alta</option><option value="URGENT">Urgente</option></select></div><div className="field"><label htmlFor="clientProject">Cliente o proyecto</label><input id="clientProject" name="clientProject" className="input" placeholder="Nombre del cliente"/></div><div className="field"><label htmlFor="assignedToId">Responsable</label><select id="assignedToId" name="assignedToId" className="input"><option value="">Sin asignar</option>{users.map(u=><option key={u.id} value={u.id}>{u.name}</option>)}</select></div><div className="field"><label htmlFor="dueDate">Fecha de vencimiento <span className="required">*</span></label><input id="dueDate" name="dueDate" className="input" type="date" required min={new Date().toISOString().slice(0,10)}/></div><div className="field"><label htmlFor="dueTime">Hora de vencimiento</label><input id="dueTime" name="dueTime" className="input" type="time" defaultValue="17:00"/></div><div className="field field-full"><label htmlFor="tags">Etiquetas opcionales</label><input id="tags" name="tags" className="input" placeholder="urgente-cliente, revisión, facturación"/><span className="helper">Separa las etiquetas con comas.</span></div><div className="field field-full"><label htmlFor="internalNotes">Notas internas</label><textarea id="internalNotes" name="internalNotes" className="input" style={{minHeight:80}} placeholder="Información visible solo para el equipo…"/></div><div className="field field-full"><label>Archivos adjuntos</label><div className="upload"><FileUp size={26}/><b>Arrastra o selecciona varios archivos</b><div className="helper">Imágenes, PDF, Word, Excel, ZIP y otros. Máximo 15 MB por archivo.</div><input type="file" multiple accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.csv,.zip,.txt,.ppt,.pptx" onChange={e=>setFiles([...files,...Array.from(e.target.files||[])])}/></div><div className="file-list">{files.map((f,i)=><div className="file-item" key={`${f.name}-${i}`}><span className="category"><Paperclip size={15}/>{f.name} <small className="subtle">({(f.size/1024/1024).toFixed(1)} MB)</small></span><button type="button" className="btn btn-ghost btn-icon" onClick={()=>setFiles(files.filter((_,j)=>j!==i))} aria-label={`Quitar ${f.name}`}><X size={16}/></button></div>)}</div></div></div><div className="form-actions"><Link href="/tickets" className="btn">Cancelar</Link><button className="btn btn-primary" disabled={saving}><Send size={16}/>{saving?'Creando…':'Crear ticket'}</button></div></form><aside className="panel side-note"><h3>Antes de crear el ticket</h3><div className="tips"><div className="tip"><Info/><span>Usa un título concreto que explique qué resultado se necesita.</span></div><div className="tip"><Bell/><span>El ticket enviará una notificación al email configurado y podrá activar recordatorios.</span></div><div className="tip"><Paperclip/><span>Adjunta evidencia, accesos no sensibles o documentos que eviten bloqueos.</span></div></div></aside></div></>
+export default function NewTicketPage() {
+  const router = useRouter();
+  const [files, setFiles] = useState<File[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+    const data = new FormData(e.currentTarget);
+    const due = `${data.get("dueDate")}T${data.get("dueTime") || "17:00"}`;
+    const ticket = {
+      title: data.get("title"),
+      description: data.get("description"),
+      category: data.get("category"),
+      priority: data.get("priority"),
+      status: "NEW",
+      clientProject: data.get("clientProject") || null,
+      dueAt: new Date(due).toISOString(),
+      tags: String(data.get("tags") || "")
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean),
+      internalNotes: data.get("internalNotes") || null,
+    };
+    const form = new FormData();
+    form.set("ticket", JSON.stringify(ticket));
+    files.forEach((f) => form.append("files", f));
+    const r = await fetch("/api/tickets", { method: "POST", body: form });
+    const json = await r.json();
+    setSaving(false);
+    if (!r.ok) {
+      setError(json.error || "No se pudo crear el ticket.");
+      return;
+    }
+    toast.success(
+      json.emailSent
+        ? "Ticket creado y email enviado."
+        : "Ticket creado. Configura SMTP para enviar el email.",
+    );
+    router.push(`/tickets/${json.ticket.id}`);
+  }
+  return (
+    <>
+      <div className="page-head">
+        <div>
+          <h2>Crear nuevo ticket</h2>
+          <p>
+            Registra el trabajo con toda la información necesaria para darle
+            seguimiento.
+          </p>
+        </div>
+      </div>
+      <div className="grid-2">
+        <form className="panel form-panel" onSubmit={submit}>
+          <h3 className="section-title">
+            <Info size={18} />
+            Información principal
+          </h3>
+          {error && (
+            <div
+              className="file-item"
+              role="alert"
+              style={{ color: "#b91c1c", marginBottom: 16 }}
+            >
+              <AlertCircle size={17} />
+              {error}
+            </div>
+          )}
+          <div className="form-grid">
+            <div className="field field-full">
+              <label htmlFor="title">
+                Título del ticket <span className="required">*</span>
+              </label>
+              <input
+                id="title"
+                name="title"
+                className="input"
+                required
+                minLength={3}
+                maxLength={160}
+                placeholder="Ej. Revisar conversiones de campaña"
+              />
+            </div>
+            <div className="field field-full">
+              <label htmlFor="description">
+                Descripción detallada <span className="required">*</span>
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                className="input"
+                required
+                minLength={5}
+                placeholder="Describe el contexto, resultado esperado y cualquier detalle importante…"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="category">
+                Categoría <span className="required">*</span>
+              </label>
+              <select
+                id="category"
+                name="category"
+                className="input"
+                required
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  Seleccionar
+                </option>
+                <option value="SUPPORT">Soporte</option>
+                <option value="GOOGLE_ADS">Google Ads</option>
+                <option value="WEBSITE">Sitio web</option>
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="priority">
+                Prioridad <span className="required">*</span>
+              </label>
+              <select
+                id="priority"
+                name="priority"
+                className="input"
+                required
+                defaultValue="MEDIUM"
+              >
+                <option value="LOW">Baja</option>
+                <option value="MEDIUM">Media</option>
+                <option value="HIGH">Alta</option>
+                <option value="URGENT">Urgente</option>
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="clientProject">Cliente o proyecto</label>
+              <input
+                id="clientProject"
+                name="clientProject"
+                className="input"
+                placeholder="Nombre del cliente"
+              />
+            </div>
+            <div className="field">
+              <label>Responsable</label>
+              <div className="input" aria-label="Responsable asignado">
+                Maycoll Jaramillo · maycolljaramillo01@gmail.com
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="dueDate">
+                Fecha de vencimiento <span className="required">*</span>
+              </label>
+              <input
+                id="dueDate"
+                name="dueDate"
+                className="input"
+                type="date"
+                required
+                min={new Date().toISOString().slice(0, 10)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="dueTime">Hora de vencimiento</label>
+              <input
+                id="dueTime"
+                name="dueTime"
+                className="input"
+                type="time"
+                defaultValue="17:00"
+              />
+            </div>
+            <div className="field field-full">
+              <label htmlFor="tags">Etiquetas opcionales</label>
+              <input
+                id="tags"
+                name="tags"
+                className="input"
+                placeholder="urgente-cliente, revisión, facturación"
+              />
+              <span className="helper">Separa las etiquetas con comas.</span>
+            </div>
+            <div className="field field-full">
+              <label htmlFor="internalNotes">Notas internas</label>
+              <textarea
+                id="internalNotes"
+                name="internalNotes"
+                className="input"
+                style={{ minHeight: 80 }}
+                placeholder="Información visible solo para el equipo…"
+              />
+            </div>
+            <div className="field field-full">
+              <label>Archivos adjuntos</label>
+              <div className="upload">
+                <FileUp size={26} />
+                <b>Arrastra o selecciona varios archivos</b>
+                <div className="helper">
+                  Imágenes, PDF, Word, Excel, ZIP y otros. Máximo 15 MB por
+                  archivo.
+                </div>
+                <input
+                  type="file"
+                  multiple
+                  accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.csv,.zip,.txt,.ppt,.pptx"
+                  onChange={(e) =>
+                    setFiles([...files, ...Array.from(e.target.files || [])])
+                  }
+                />
+              </div>
+              <div className="file-list">
+                {files.map((f, i) => (
+                  <div className="file-item" key={`${f.name}-${i}`}>
+                    <span className="category">
+                      <Paperclip size={15} />
+                      {f.name}{" "}
+                      <small className="subtle">
+                        ({(f.size / 1024 / 1024).toFixed(1)} MB)
+                      </small>
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-icon"
+                      onClick={() => setFiles(files.filter((_, j) => j !== i))}
+                      aria-label={`Quitar ${f.name}`}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="form-actions">
+            <Link href="/tickets" className="btn">
+              Cancelar
+            </Link>
+            <button className="btn btn-primary" disabled={saving}>
+              <Send size={16} />
+              {saving ? "Creando…" : "Crear ticket"}
+            </button>
+          </div>
+        </form>
+        <aside className="panel side-note">
+          <h3>Antes de crear el ticket</h3>
+          <div className="tips">
+            <div className="tip">
+              <Info />
+              <span>
+                Usa un título concreto que explique qué resultado se necesita.
+              </span>
+            </div>
+            <div className="tip">
+              <Bell />
+              <span>
+                El ticket enviará una notificación al email configurado y podrá
+                activar recordatorios.
+              </span>
+            </div>
+            <div className="tip">
+              <Paperclip />
+              <span>
+                Adjunta evidencia, accesos no sensibles o documentos que eviten
+                bloqueos.
+              </span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </>
+  );
 }

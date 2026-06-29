@@ -8,9 +8,7 @@ export const ticketSchema = z.object({
   priority: z.enum(PRIORITIES),
   status: z.enum(STATUSES).default('NEW'),
   clientProject: z.string().trim().max(120).optional().nullable(),
-  assignedToId: z.coerce.number().int().positive().optional().nullable(),
   dueAt: z.coerce.date(),
   tags: z.array(z.string().trim().max(30)).default([]),
-  internalNotes: z.string().max(3000).optional().nullable(),
-  createdById: z.coerce.number().int().positive().default(1)
+  internalNotes: z.string().max(3000).optional().nullable()
 })

@@ -25,7 +25,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const actor = Number(body.actorId || 1)
   if (changes.status && changes.status !== current.status) activity.push({ action: changes.status === 'COMPLETED' ? 'TICKET_COMPLETED' : 'STATUS_CHANGED', oldValue: current.status, newValue: changes.status, userId: actor })
   if (changes.priority && changes.priority !== current.priority) activity.push({ action: 'PRIORITY_CHANGED', oldValue: current.priority, newValue: changes.priority, userId: actor })
-  if (changes.assignedToId !== undefined && changes.assignedToId !== current.assignedToId) activity.push({ action: 'ASSIGNEE_CHANGED', oldValue: String(current.assignedToId || ''), newValue: String(changes.assignedToId || ''), userId: actor })
   const data: Prisma.TicketUncheckedUpdateInput = {}
   if (changes.title !== undefined) data.title = changes.title
   if (changes.description !== undefined) data.description = changes.description
@@ -33,7 +32,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (changes.priority !== undefined) data.priority = changes.priority
   if (changes.status !== undefined) data.status = changes.status
   if (changes.clientProject !== undefined) data.clientProject = changes.clientProject
-  if (changes.assignedToId !== undefined) data.assignedToId = changes.assignedToId
   if (changes.dueAt !== undefined) data.dueAt = changes.dueAt
   if (changes.tags !== undefined) data.tags = JSON.stringify(changes.tags)
   if (changes.internalNotes !== undefined) data.internalNotes = changes.internalNotes

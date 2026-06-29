@@ -8,3 +8,4 @@ export const LABELS: Record<string, string> = {
 }
 export const MAX_FILE_SIZE = 15 * 1024 * 1024
 export const ALLOWED_EXTENSIONS = ['jpg','jpeg','png','gif','webp','pdf','doc','docx','xls','xlsx','csv','zip','txt','ppt','pptx']
+export const TASK_ASSIGNEE = { name: 'Maycoll Jaramillo', email: 'maycolljaramillo01@gmail.com' } as const
