@@ -1,0 +1,8 @@
+'use client'
+import { useCallback, useEffect, useState } from 'react'
+import Link from 'next/link'
+import { AlertTriangle, CheckCircle2, CircleDot, Clock3, Layers3, ListTodo, Plus, Siren } from 'lucide-react'
+import type { Ticket } from '@/types'
+import { TicketTable } from './ticket-table'
+
+export function DashboardPage(){const [tickets,setTickets]=useState<Ticket[]>([]);const [loading,setLoading]=useState(true);const load=useCallback(()=>{fetch('/api/tickets').then(r=>r.json()).then(setTickets).finally(()=>setLoading(false))},[]);useEffect(load,[load]);const open=tickets.filter(t=>!['COMPLETED','CANCELLED'].includes(t.status));const metrics=[['Tickets totales',tickets.length,Layers3],['Nuevos',tickets.filter(t=>t.status==='NEW').length,CircleDot],['Pendientes',tickets.filter(t=>t.status==='PENDING').length,Clock3],['En proceso',tickets.filter(t=>t.status==='IN_PROGRESS').length,ListTodo],['Urgentes',open.filter(t=>t.priority==='URGENT').length,Siren],['Vencidos',open.filter(t=>new Date(t.dueAt)<new Date()).length,AlertTriangle],['Completados',tickets.filter(t=>t.status==='COMPLETED').length,CheckCircle2]] as const;return <><div className="page-head"><div><h2>Centro de operaciones</h2><p>Resumen en tiempo real de la carga de trabajo de tu equipo.</p></div><Link href="/tickets/new" className="btn btn-primary"><Plus size={17}/>Crear ticket</Link></div><div className="metrics">{metrics.map(([label,value,Icon])=><div className="metric" key={label}><div className="metric-top"><span>{label}</span><span className="metric-icon"><Icon/></span></div><strong>{loading?'—':value}</strong></div>)}</div><TicketTable tickets={tickets} onRefresh={load} compact/></>}

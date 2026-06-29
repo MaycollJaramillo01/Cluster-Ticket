@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  role String @default("COLLABORATOR")
+  avatar String?
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+  createdTickets Ticket[] @relation("CreatedBy")
+  assignedTickets Ticket[] @relation("AssignedTo")
+  attachments Attachment[]
+  comments Comment[]
+  activities ActivityLog[]
+}
+
+model Ticket {
+  id Int @id @default(autoincrement())
+  title String
+  description String
+  category String
+  priority String
+  status String @default("NEW")
+  clientProject String?
+  assignedToId Int?
+  dueAt DateTime
+  tags String @default("[]")
+  internalNotes String?
+  createdById Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  completedAt DateTime?
+  deletedAt DateTime?
+  assignedTo User? @relation("AssignedTo", fields: [assignedToId], references: [id])
+  createdBy User @relation("CreatedBy", fields: [createdById], references: [id])
+  attachments Attachment[]
+  comments Comment[]
+  reminders Reminder[]
+  activityLog ActivityLog[]
+}
+
+model Attachment {
+  id Int @id @default(autoincrement())
+  ticketId Int
+  commentId Int?
+  fileName String
+  fileUrl String
+  fileType String
+  fileSize Int
+  uploadedById Int
+  createdAt DateTime @default(now())
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  uploadedBy User @relation(fields: [uploadedById], references: [id])
+}
+
+model Comment {
+  id Int @id @default(autoincrement())
+  ticketId Int
+  userId Int
+  comment String
+  createdAt DateTime @default(now())
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+  attachments Attachment[]
+}
+
+model Reminder {
+  id Int @id @default(autoincrement())
+  ticketId Int
+  remindAt DateTime
+  type String
+  message String?
+  sent Boolean @default(false)
+  createdAt DateTime @default(now())
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id Int @id @default(autoincrement())
+  ticketId Int
+  userId Int?
+  action String
+  oldValue String?
+  newValue String?
+  createdAt DateTime @default(now())
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model Setting {
+  id Int @id @default(1)
+  notificationEmail String @default("maycolljaramillo01@gmail.com")
+  desktopNotificationsEnabled Boolean @default(true)
+  defaultReminderMinutes Int @default(30)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

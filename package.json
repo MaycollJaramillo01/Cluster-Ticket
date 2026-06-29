@@ -1,0 +1,41 @@
+{
+  "name": "taskflow-agency",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@hello-pangea/dnd": "18.0.1",
+    "@prisma/client": "6.19.3",
+    "date-fns": "4.1.0",
+    "lucide-react": "0.468.0",
+    "next": "16.2.9",
+    "nodemailer": "9.0.1",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "react-hot-toast": "2.5.2",
+    "zod": "3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "@types/nodemailer": "6.4.17",
+    "@types/react": "19.0.3",
+    "@types/react-dom": "19.0.2",
+    "eslint": "9.17.0",
+    "eslint-config-next": "16.2.9",
+    "postcss": "8.5.10",
+    "prisma": "6.19.3",
+    "tsx": "4.19.2",
+    "typescript": "5.7.2"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}
