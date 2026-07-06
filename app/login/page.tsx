@@ -6,15 +6,17 @@ import toast from 'react-hot-toast'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    const form = new FormData(e.currentTarget)
+    const username = String(form.get('username') || '').trim()
+    const password = String(form.get('password') || '')
+    if (!username || !password) { toast.error('Ingresa usuario y contraseña.'); return }
     setLoading(true)
     try {
-      const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: username.trim(), password }) })
+      const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) { toast.error(data.error || 'No se pudo iniciar sesión.'); return }
       toast.success(`Bienvenido, ${data.name}`)
@@ -31,10 +33,10 @@ export default function LoginPage() {
       </div>
       <p style={{ margin: 0, color: 'var(--muted)' }}>Inicia sesión para gestionar tus tickets.</p>
       <div className="field"><label htmlFor="username">Usuario o email</label>
-        <input id="username" className="input" value={username} onChange={e => setUsername(e.target.value)} autoComplete="username" autoFocus required /></div>
+        <input id="username" name="username" className="input" autoComplete="username" autoFocus required /></div>
       <div className="field"><label htmlFor="password">Contraseña</label>
-        <input id="password" className="input" type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" required /></div>
-      <button className="btn btn-primary" disabled={loading || !username.trim() || !password}><LogIn size={17} /> {loading ? 'Ingresando…' : 'Ingresar'}</button>
+        <input id="password" name="password" className="input" type="password" autoComplete="current-password" required /></div>
+      <button className="btn btn-primary" disabled={loading}><LogIn size={17} /> {loading ? 'Ingresando…' : 'Ingresar'}</button>
     </form>
   </div>
 }
