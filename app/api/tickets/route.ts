@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { ticketSchema } from '@/lib/validators'
 import { ALLOWED_EXTENSIONS, MAX_FILE_SIZE, TASK_ASSIGNEE } from '@/lib/constants'
 import { sendNewTicketEmail } from '@/lib/mail'
+import { getCurrentUser } from '@/lib/auth'
 import { mkdir, writeFile } from 'fs/promises'
 import path from 'path'
 
@@ -20,6 +21,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const currentUser = await getCurrentUser()
+    if (!currentUser) return NextResponse.json({ error: 'No autenticado.' }, { status: 401 })
     const form = await req.formData()
     const raw = JSON.parse(String(form.get('ticket') || '{}'))
     const parsed = ticketSchema.safeParse(raw)
@@ -35,16 +38,16 @@ export async function POST(req: NextRequest) {
       update: { name: TASK_ASSIGNEE.name, role: 'ADMIN', active: true },
       create: { ...TASK_ASSIGNEE, role: 'ADMIN' }
     })
-    const ticket = await prisma.ticket.create({ data: { ...parsed.data, assignedToId: assignee.id, createdById: assignee.id, tags: JSON.stringify(parsed.data.tags), activityLog: { create: { userId: assignee.id, action: 'TICKET_CREATED', newValue: 'Nuevo' } } } })
+    const ticket = await prisma.ticket.create({ data: { ...parsed.data, assignedToId: assignee.id, createdById: currentUser.id, tags: JSON.stringify(parsed.data.tags), activityLog: { create: { userId: currentUser.id, action: 'TICKET_CREATED', newValue: 'Nuevo' } } } })
     if (files.length) {
       const dir = path.join(process.cwd(), 'public', 'uploads', String(ticket.id))
       await mkdir(dir, { recursive: true })
       for (const file of files) {
         const safe = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
         await writeFile(path.join(dir, safe), Buffer.from(await file.arrayBuffer()))
-        await prisma.attachment.create({ data: { ticketId: ticket.id, fileName: file.name, fileUrl: `/uploads/${ticket.id}/${safe}`, fileType: file.type || 'application/octet-stream', fileSize: file.size, uploadedById: assignee.id } })
+        await prisma.attachment.create({ data: { ticketId: ticket.id, fileName: file.name, fileUrl: `/uploads/${ticket.id}/${safe}`, fileType: file.type || 'application/octet-stream', fileSize: file.size, uploadedById: currentUser.id } })
       }
-      await prisma.activityLog.create({ data: { ticketId: ticket.id, userId: assignee.id, action: 'FILES_ATTACHED', newValue: `${files.length} archivo(s)` } })
+      await prisma.activityLog.create({ data: { ticketId: ticket.id, userId: currentUser.id, action: 'FILES_ATTACHED', newValue: `${files.length} archivo(s)` } })
     }
     const complete = await prisma.ticket.findUniqueOrThrow({ where: { id: ticket.id }, include: { assignedTo: true, createdBy: true, attachments: true } })
     const mail = await sendNewTicketEmail(complete, assignee.email)

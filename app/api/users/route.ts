@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
-export async function GET() { return NextResponse.json(await prisma.user.findMany({ where: { active: true }, orderBy: { name: 'asc' } })) }
+export async function GET() { return NextResponse.json(await prisma.user.findMany({ where: { active: true }, orderBy: { name: 'asc' }, omit: { passwordHash: true } })) }
 export async function POST(req: NextRequest) {
   const parsed = z.object({ name:z.string().min(2), email:z.string().email(), role:z.enum(['ADMIN','COLLABORATOR','CLIENT','READ_ONLY']) }).safeParse(await req.json())
   if (!parsed.success) return NextResponse.json({ error: 'Datos de usuario inválidos.' }, { status: 400 })
