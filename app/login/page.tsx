@@ -26,7 +26,8 @@ export default function LoginPage() {
   }
 
   return <div style={{ minHeight: '100dvh', display: 'grid', placeItems: 'center', padding: 20 }}>
-    <form onSubmit={submit} className="panel" style={{ width: '100%', maxWidth: 380, padding: 30, display: 'grid', gap: 17 }}>
+    {/* method="post": si el JS aún no cargó, un submit nativo no debe poner la contraseña en la URL */}
+    <form onSubmit={submit} method="post" className="panel" style={{ width: '100%', maxWidth: 380, padding: 30, display: 'grid', gap: 17 }}>
       <div style={{ display: 'flex', gap: 11, alignItems: 'center' }}>
         <div className="brand-mark" style={{ color: '#fff' }}><CheckSquare2 size={20} /></div>
         <div><b style={{ fontSize: 16 }}>TaskFlow</b><span className="subtle" style={{ display: 'block' }}>Agency workspace</span></div>

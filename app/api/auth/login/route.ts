@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
   const user = await prisma.user.findFirst({ where: { active: true, OR: [{ username: username.toLowerCase() }, { email: username.toLowerCase() }] } })
   if (!user || !verifyPassword(password, user.passwordHash)) return NextResponse.json({ error: 'Usuario o contraseña incorrectos.' }, { status: 401 })
   const res = NextResponse.json({ id: user.id, name: user.name, email: user.email, role: user.role })
-  res.cookies.set(SESSION_COOKIE, await createSessionToken(user.id), { httpOnly: true, sameSite: 'lax', path: '/', maxAge: SESSION_DAYS * 24 * 60 * 60, secure: process.env.NODE_ENV === 'production' })
+  // secure solo bajo HTTPS: la app se sirve por http en la red local y una cookie "secure" sería descartada.
+  res.cookies.set(SESSION_COOKIE, await createSessionToken(user.id), { httpOnly: true, sameSite: 'lax', path: '/', maxAge: SESSION_DAYS * 24 * 60 * 60, secure: (process.env.APP_URL || '').startsWith('https') })
   return res
 }
