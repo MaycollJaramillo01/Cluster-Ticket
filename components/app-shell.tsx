@@ -10,8 +10,8 @@ import type { User } from '@/types'
 const nav = [{href:'/',label:'Dashboard',icon:LayoutDashboard},{href:'/tickets',label:'Tickets',icon:CheckSquare2},{href:'/tickets/new',label:'Crear ticket',icon:Plus},{href:'/kanban',label:'Kanban',icon:Trello},{href:'/calendar',label:'Calendario',icon:CalendarDays},{href:'/reminders',label:'Recordatorios',icon:Clock3},{href:'/settings',label:'Configuración',icon:Settings}]
 export function AppShell({children}:{children:React.ReactNode}){
  const path=usePathname(); const router=useRouter(); const [open,setOpen]=useState(false); const [user,setUser]=useState<User|null>(null)
- useEffect(()=>{ if(path==='/login'){setUser(null);return} fetch('/api/auth/me').then(r=>r.ok?r.json():null).then(setUser).catch(()=>{}) },[path])
- if(path==='/login') return <>{children}</>
+ useEffect(()=>{ if(path==='/login'||path==='/solicitud'){setUser(null);return} fetch('/api/auth/me').then(r=>r.ok?r.json():null).then(setUser).catch(()=>{}) },[path])
+ if(path==='/login'||path==='/solicitud') return <>{children}</>
  const title=nav.find(n=>n.href==='/'?path==='/':path.startsWith(n.href))?.label||'TaskFlow Agency'
  const initials=user?user.name.split(' ').map(p=>p[0]).slice(0,2).join('').toUpperCase():'…'
  async function logout(){ await fetch('/api/auth/logout',{method:'POST'}).catch(()=>{}); router.replace('/login'); router.refresh() }

@@ -11,8 +11,14 @@ export async function sendNewTicketEmail(ticket: MailTicket, to: string) {
     return { sent: false, reason: 'SMTP_NOT_CONFIGURED' }
   }
   const transport = nodemailer.createTransport({ host: process.env.SMTP_HOST, port: Number(process.env.SMTP_PORT || 587), secure: Number(process.env.SMTP_PORT) === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } })
-  await transport.sendMail({ from: process.env.SMTP_FROM, to, subject, text })
-  return { sent: true }
+  // Un fallo de envío (SMTP caído, IP bloqueada, etc.) no debe hacer fallar la creación del ticket, que ya quedó guardada.
+  try {
+    await transport.sendMail({ from: process.env.SMTP_FROM, to, subject, text })
+    return { sent: true }
+  } catch (error) {
+    console.error('[TaskFlow envío de email fallido]', error)
+    return { sent: false, reason: 'SEND_FAILED' }
+  }
 }
 
 export async function sendReminderEmail(ticket: MailTicket, to: string, message?: string | null) {

@@ -58,11 +58,12 @@ export default function SettingsPage() {
         name: f.get("name"),
         email: f.get("email"),
         role: f.get("role"),
+        password: f.get("password"),
       }),
     });
     const json = await r.json();
     if (!r.ok) return toast.error(json.error);
-    toast.success("Usuario creado.");
+    toast.success("Usuario creado. Ya puede iniciar sesión con su email y contraseña.");
     (e.target as HTMLFormElement).reset();
     loadUsers();
   }
@@ -219,11 +220,23 @@ export default function SettingsPage() {
             <div className="field">
               <label htmlFor="role">Rol</label>
               <select id="role" name="role" className="input">
-                <option value="COLLABORATOR">Colaborador</option>
                 <option value="CLIENT">Cliente</option>
+                <option value="COLLABORATOR">Colaborador</option>
                 <option value="ADMIN">Administrador</option>
                 <option value="READ_ONLY">Solo lectura</option>
               </select>
+            </div>
+            <div className="field">
+              <label htmlFor="password">Contraseña</label>
+              <input
+                id="password"
+                name="password"
+                className="input"
+                type="text"
+                required
+                minLength={6}
+                placeholder="Mínimo 6 caracteres"
+              />
             </div>
             <div className="field" style={{ justifyContent: "end" }}>
               <button className="btn">
@@ -234,7 +247,8 @@ export default function SettingsPage() {
           </form>
           <div className="helper" style={{ marginTop: 14 }}>
             <ShieldCheck size={14} /> Administrador: control total. Colaborador:
-            gestión de asignados. Solo lectura: acceso sin modificaciones.
+            gestión de asignados. Cliente: crea y sigue sus propios tickets.
+            Solo lectura: acceso sin modificaciones.
           </div>
         </section>
       </div>

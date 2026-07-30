@@ -38,6 +38,7 @@ export default function LoginPage() {
       <div className="field"><label htmlFor="password">Contraseña</label>
         <input id="password" name="password" className="input" type="password" autoComplete="current-password" required /></div>
       <button className="btn btn-primary" disabled={loading}><LogIn size={17} /> {loading ? 'Ingresando…' : 'Ingresar'}</button>
+      <p style={{ margin: 0, textAlign: 'center' }}><a href="/solicitud">¿Necesitas soporte? Crea un ticket sin cuenta</a></p>
     </form>
   </div>
 }
