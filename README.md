@@ -1,4 +1,4 @@
-# TaskFlow Agency
+# Cluster Flow
 
 Sistema interno de tickets para soporte, Google Ads y sitios web. Incluye CRUD, tabla filtrable, Kanban, calendario, comentarios, historial, archivos, recordatorios, notificaciones del navegador y correo SMTP.
 

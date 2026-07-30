@@ -7,7 +7,7 @@ export async function sendNewTicketEmail(ticket: MailTicket, to: string) {
   const subject = `Nuevo ticket creado: ${ticket.title} - ${LABELS[ticket.priority]}`
   const text = `Se ha creado un nuevo ticket en el sistema.\n\nTítulo: ${ticket.title}\nCategoría: ${LABELS[ticket.category]}\nPrioridad: ${LABELS[ticket.priority]}\nEstado: ${LABELS[ticket.status]}\nCliente/Proyecto: ${ticket.clientProject || 'Sin especificar'}\nResponsable: ${ticket.assignedTo?.name || 'Sin asignar'}\nVencimiento: ${ticket.dueAt.toLocaleString('es-HN')}\n\nDescripción:\n${ticket.description}\n\nArchivos adjuntos: ${ticket.attachments?.length ? 'Sí' : 'No'}\n\nAbrir ticket:\n${url}`
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.info('[TaskFlow email pendiente de SMTP]', { to, subject, text })
+    console.info('[Cluster Flow email pendiente de SMTP]', { to, subject, text })
     return { sent: false, reason: 'SMTP_NOT_CONFIGURED' }
   }
   const transport = nodemailer.createTransport({ host: process.env.SMTP_HOST, port: Number(process.env.SMTP_PORT || 587), secure: Number(process.env.SMTP_PORT) === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } })
@@ -16,7 +16,7 @@ export async function sendNewTicketEmail(ticket: MailTicket, to: string) {
     await transport.sendMail({ from: process.env.SMTP_FROM, to, subject, text })
     return { sent: true }
   } catch (error) {
-    console.error('[TaskFlow envío de email fallido]', error)
+    console.error('[Cluster Flow envío de email fallido]', error)
     return { sent: false, reason: 'SEND_FAILED' }
   }
 }
@@ -26,7 +26,7 @@ export async function sendReminderEmail(ticket: MailTicket, to: string, message?
   const subject = `Recordatorio: ${ticket.title} - ${LABELS[ticket.priority]}`
   const text = `${message || 'Tienes un ticket próximo a vencer.'}\n\nTicket: ${ticket.title}\nPrioridad: ${LABELS[ticket.priority]}\nVencimiento: ${ticket.dueAt.toLocaleString('es-HN')}\n\nAbrir ticket:\n${url}`
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.info('[TaskFlow recordatorio pendiente de SMTP]', { to, subject })
+    console.info('[Cluster Flow recordatorio pendiente de SMTP]', { to, subject })
     return { sent: false, reason: 'SMTP_NOT_CONFIGURED' }
   }
   const transport = nodemailer.createTransport({ host: process.env.SMTP_HOST, port: Number(process.env.SMTP_PORT || 587), secure: Number(process.env.SMTP_PORT) === 465, auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } })

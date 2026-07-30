@@ -4,12 +4,12 @@ import Link from "next/link";
 import {
   AlertCircle,
   CheckCircle2,
-  CheckSquare2,
   FileUp,
   Paperclip,
   Send,
   X,
 } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
 
 export default function PublicTicketRequestPage() {
   const [files, setFiles] = useState<File[]>([]);
@@ -67,8 +67,8 @@ export default function PublicTicketRequestPage() {
     <div style={{ minHeight: "100dvh", display: "grid", placeItems: "center", padding: 20 }}>
       <form onSubmit={submit} className="panel form-panel" style={{ width: "100%", maxWidth: 640, padding: 30, display: "grid", gap: 17 }}>
         <div style={{ display: "flex", gap: 11, alignItems: "center" }}>
-          <div className="brand-mark" style={{ color: "#fff" }}><CheckSquare2 size={20} /></div>
-          <div><b style={{ fontSize: 16 }}>TaskFlow</b><span className="subtle" style={{ display: "block" }}>Solicitar soporte</span></div>
+          <div className="brand-mark" style={{ color: "#fff" }}><BrandMark size={20} /></div>
+          <div><b style={{ fontSize: 16 }}>Cluster Flow</b><span className="subtle" style={{ display: "block" }}>Solicitar soporte</span></div>
         </div>
         <p style={{ margin: 0, color: "var(--muted)" }}>
           Cuéntanos qué necesitas. No hace falta una cuenta para enviar tu solicitud.

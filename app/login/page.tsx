@@ -1,7 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CheckSquare2, LogIn } from 'lucide-react'
+import { LogIn } from 'lucide-react'
+import { BrandMark } from '@/components/brand-mark'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
@@ -29,8 +30,8 @@ export default function LoginPage() {
     {/* method="post": si el JS aún no cargó, un submit nativo no debe poner la contraseña en la URL */}
     <form onSubmit={submit} method="post" className="panel" style={{ width: '100%', maxWidth: 380, padding: 30, display: 'grid', gap: 17 }}>
       <div style={{ display: 'flex', gap: 11, alignItems: 'center' }}>
-        <div className="brand-mark" style={{ color: '#fff' }}><CheckSquare2 size={20} /></div>
-        <div><b style={{ fontSize: 16 }}>TaskFlow</b><span className="subtle" style={{ display: 'block' }}>Agency workspace</span></div>
+        <div className="brand-mark" style={{ color: '#fff' }}><BrandMark size={20} /></div>
+        <div><b style={{ fontSize: 16 }}>Cluster Flow</b><span className="subtle" style={{ display: 'block' }}>Agency workspace</span></div>
       </div>
       <p style={{ margin: 0, color: 'var(--muted)' }}>Inicia sesión para gestionar tus tickets.</p>
       <div className="field"><label htmlFor="username">Usuario o email</label>
