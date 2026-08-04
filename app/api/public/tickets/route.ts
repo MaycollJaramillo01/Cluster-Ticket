@@ -48,14 +48,19 @@ export async function POST(req: NextRequest) {
       }
     })
     if (files.length) {
-      const dir = path.join(process.cwd(), 'public', 'uploads', String(ticket.id))
-      await mkdir(dir, { recursive: true })
-      for (const file of files) {
-        const safe = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
-        await writeFile(path.join(dir, safe), Buffer.from(await file.arrayBuffer()))
-        await prisma.attachment.create({ data: { ticketId: ticket.id, fileName: file.name, fileUrl: `/uploads/${ticket.id}/${safe}`, fileType: file.type || 'application/octet-stream', fileSize: file.size, uploadedById: requester.id } })
+      try {
+        const dir = path.join(process.cwd(), 'public', 'uploads', String(ticket.id))
+        await mkdir(dir, { recursive: true })
+        for (const file of files) {
+          const safe = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
+          await writeFile(path.join(dir, safe), Buffer.from(await file.arrayBuffer()))
+          await prisma.attachment.create({ data: { ticketId: ticket.id, fileName: file.name, fileUrl: `/uploads/${ticket.id}/${safe}`, fileType: file.type || 'application/octet-stream', fileSize: file.size, uploadedById: requester.id } })
+        }
+        await prisma.activityLog.create({ data: { ticketId: ticket.id, userId: requester.id, action: 'FILES_ATTACHED', newValue: `${files.length} archivo(s)` } })
+      } catch {
+        await prisma.ticket.delete({ where: { id: ticket.id } }).catch(() => {})
+        return NextResponse.json({ error: 'Error al guardar los archivos. Intenta de nuevo.' }, { status: 500 })
       }
-      await prisma.activityLog.create({ data: { ticketId: ticket.id, userId: requester.id, action: 'FILES_ATTACHED', newValue: `${files.length} archivo(s)` } })
     }
     const complete = await prisma.ticket.findUniqueOrThrow({ where: { id: ticket.id }, include: { assignedTo: true, createdBy: true, attachments: true } })
     const mail = await sendNewTicketEmail(complete, assignee.email)
